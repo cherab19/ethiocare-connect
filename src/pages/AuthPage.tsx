@@ -6,9 +6,11 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Heart, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function AuthPage() {
   const [searchParams] = useSearchParams();
@@ -16,6 +18,8 @@ export default function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [accountType, setAccountType] = useState<"family" | "hospital">("family");
+  const [hospitalName, setHospitalName] = useState("");
   const [loading, setLoading] = useState(false);
   const { signIn, signUp, user, roles } = useAuth();
   const { t } = useLanguage();
@@ -37,13 +41,24 @@ export default function AuthPage() {
     setLoading(true);
     try {
       if (isSignUp) {
-        const { error } = await signUp(email, password, fullName);
+        // For hospital registration, we pass account_type in metadata
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              full_name: fullName,
+              account_type: accountType,
+              hospital_name: accountType === "hospital" ? hospitalName : undefined,
+            },
+            emailRedirectTo: window.location.origin,
+          },
+        });
         if (error) throw error;
         toast({ title: t.auth.verifyEmail });
       } else {
         const { error } = await signIn(email, password);
         if (error) throw error;
-        // Redirect handled by useEffect above
       }
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -88,18 +103,36 @@ export default function AuthPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {isSignUp && (
-              <div className="space-y-2">
-                <Label htmlFor="fullName">{t.common.fullName}</Label>
-                <Input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} required placeholder="Abebe Kebede" />
-              </div>
+              <>
+                <div className="space-y-2">
+                  <Label>{t.common.fullName}</Label>
+                  <Input value={fullName} onChange={(e) => setFullName(e.target.value)} required placeholder="Abebe Kebede" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Account Type</Label>
+                  <Select value={accountType} onValueChange={(v) => setAccountType(v as "family" | "hospital")}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="family">Family Account</SelectItem>
+                      <SelectItem value="hospital">Hospital / Clinic</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                {accountType === "hospital" && (
+                  <div className="space-y-2">
+                    <Label>Hospital / Clinic Name</Label>
+                    <Input value={hospitalName} onChange={(e) => setHospitalName(e.target.value)} required placeholder="Tikur Anbessa Hospital" />
+                  </div>
+                )}
+              </>
             )}
             <div className="space-y-2">
-              <Label htmlFor="email">{t.common.email}</Label>
-              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="name@example.com" />
+              <Label>{t.common.email}</Label>
+              <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="name@example.com" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">{t.common.password}</Label>
-              <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} placeholder="••••••••" />
+              <Label>{t.common.password}</Label>
+              <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} placeholder="••••••••" />
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
