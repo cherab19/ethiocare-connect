@@ -8,6 +8,8 @@ import { AuthProvider } from "@/hooks/useAuth";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import AuthPage from "./pages/AuthPage";
+import ResetPassword from "./pages/ResetPassword";
+import PricingPage from "./pages/PricingPage";
 import NotFound from "./pages/NotFound";
 
 // Family
@@ -45,6 +47,8 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<AuthPage />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/pricing" element={<PricingPage />} />
 
               {/* Family Routes */}
               <Route path="/family/dashboard" element={<ProtectedRoute allowedRoles={["family_admin", "family_member"]}><FamilyDashboard /></ProtectedRoute>} />
