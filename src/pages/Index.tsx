@@ -17,7 +17,7 @@ import {
 import heroImage from "@/assets/hero-image.jpg";
 
 const Index = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const features = [
     { icon: Heart, title: t.landing.featureRecords, desc: t.landing.featureRecordsDesc, delay: "0" },
@@ -153,6 +153,23 @@ const Index = () => {
               ))}
             </ul>
           </div>
+        </div>
+      </section>
+
+      {/* Pricing CTA */}
+      <section className="py-16">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="mb-4 font-display text-3xl font-bold text-foreground">
+            {language === "am" ? "ዋጋዎችን ይመልከቱ" : "View Our Plans"}
+          </h2>
+          <p className="mx-auto mb-8 max-w-xl text-muted-foreground">
+            {language === "am" ? "ለቤተሰብዎ ጤና አስተዳደር ትክክለኛውን ዕቅድ ይምረጡ" : "Choose the right plan for your family's healthcare management"}
+          </p>
+          <Link to="/pricing">
+            <Button size="lg" className="gradient-gold text-accent-foreground shadow-gold hover:opacity-90">
+              {language === "am" ? "ዋጋ" : "View Pricing"}
+            </Button>
+          </Link>
         </div>
       </section>
 

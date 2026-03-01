@@ -133,6 +133,29 @@ export default function AuthPage() {
             <div className="space-y-2">
               <Label>{t.common.password}</Label>
               <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} placeholder="••••••••" />
+              {!isSignUp && (
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (!email) {
+                      toast({ title: "Error", description: "Please enter your email first", variant: "destructive" });
+                      return;
+                    }
+                    try {
+                      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                        redirectTo: `${window.location.origin}/reset-password`,
+                      });
+                      if (error) throw error;
+                      toast({ title: t.auth.forgotPassword, description: "Check your email for a reset link." });
+                    } catch (err: any) {
+                      toast({ title: "Error", description: err.message, variant: "destructive" });
+                    }
+                  }}
+                  className="text-xs text-primary hover:underline"
+                >
+                  {t.auth.forgotPassword}
+                </button>
+              )}
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

@@ -22,6 +22,7 @@ import {
   X,
 } from "lucide-react";
 import { useState } from "react";
+import { useNotifications } from "@/hooks/useNotifications";
 
 interface NavItem {
   title: string;
@@ -38,6 +39,7 @@ interface DashboardLayoutProps {
 export default function DashboardLayout({ children, navItems, title }: DashboardLayoutProps) {
   const { signOut, user } = useAuth();
   const { t } = useLanguage();
+  useNotifications();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
